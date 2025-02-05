@@ -1,11 +1,12 @@
-`Work in Progress: Not fully complete, and implementation details are unstable.`
+> [!CAUTION]
+> This project is not fully complete, and implementation details are unstable.
 
 # Slack Tools
 
 A concise, and opinionated, syntax for building Slack Block Kit UIs.
 
-## Note
-If running directly from terminal, you will need to run `uv sync` or `uv run <file_name>.py` to install the dependencies.
+> [!NOTE]
+> If running directly from terminal, you will need to run `uv sync` or `uv run <file_name>.py` to install the dependencies.
 
 ## Usage
 
@@ -36,5 +37,7 @@ print(layout.to_json())
 # For API Consumption
 print(layout.to_api())
 ```
+
+## Examples
 
 See [examples](examples) for more.
