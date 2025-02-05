@@ -34,7 +34,7 @@ from slack_tools.blocks.schemas.blocks import (
     ContextBlockSchema,
     DividerBlockSchema,
     HeaderBlockSchema,
-    ImageSchema,
+    ImageBlockSchema,
     RichPreformattedSchema,
     RichQuoteSchema,
     RichSectionSchema,
@@ -75,7 +75,7 @@ AnyElement = (
 ElementType: TypeAlias = AnyElement | Sequence[AnyElement] | tuple[AnyElement, ...]
 
 
-class Image(ImageSchema):
+class Image(ImageBlockSchema):
     @classmethod
     def create(
         cls,

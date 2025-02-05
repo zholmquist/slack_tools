@@ -9,17 +9,26 @@ from slack_tools.blocks.schemas.objects import (
     OptionSchema,
     PlainTextSchema,
 )
+from slack_tools.utils.dataclass_utils import Field
 
 
 @dataclass
-class ButtonSchema(InteractiveElementSchema, block_type='button'):
+class ButtonSchema:  # (InteractiveElementSchema, block_type='button'):
     """Button. Allows users a direct path to performing basic actions.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/block-elements#button)
     """
 
-    text: PlainTextSchema
-    url: str | None = None
+    text: PlainTextSchema = Field(
+        title='Text Field',
+        description='A field for the text',
+    )
+
+    url: str = Field(
+        default=None,
+        title='URL Field',
+        description='A field for the URL',
+    )
     style: ButtonStyle | None = None
     value: str | None = None
     accessibility_label: str | None = None

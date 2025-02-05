@@ -1,8 +1,11 @@
 from slack_tools.mrkdwn.extras.table import MarkdownTable
-from slack_tools.mrkdwn.extras.text import H1, H2, H3, Paragraph
+from slack_tools.mrkdwn.extras.text import Paragraph
 from slack_tools.mrkdwn.extras.todos import Todo
 from slack_tools.mrkdwn.slack import Link, Mention
 from slack_tools.mrkdwn.syntax import (
+    H1,
+    H2,
+    H3,
     Bold,
     Code,
     CodeBlock,

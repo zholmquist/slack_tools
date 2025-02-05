@@ -25,9 +25,10 @@ packages = ["slack_tools"]
 [dependency-groups]
 dev = [
     "jinja2>=3.1.5",
-    "pytest>=8.3.4",
-    "rich>=13.9.4",
-    "ruff>=0.9.4",
+    "mypy>=1.14.1",
+ "pytest>=8.3.4",
+ "rich>=13.9.4",
+ "ruff>=0.9.4",
 ]
 lint = ["mypy>=1.11.2", "pytest>=8.3.4", "ruff>=0.9.4"]
 
@@ -95,6 +96,7 @@ ignore = [
     "E731",
     "PERF203",
     "RUF005",
+    "RUF009",
     "RUF012",
     "D200",
     "D205",

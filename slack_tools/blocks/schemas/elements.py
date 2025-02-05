@@ -23,6 +23,9 @@ from slack_tools.blocks.schemas.rich_text import (
     RichUserSchema,
 )
 
+#
+# Interactive Elements
+#
 AnyInteractiveElementSchema = (
     ButtonSchema
     | CheckboxesSchema
@@ -37,6 +40,9 @@ AnyInteractiveElementSchema = (
     | TimePickerSchema
 )
 
+#
+# Rich Text Elements
+#
 AnyRichElementSchema = (
     RichBroadcastSchema
     | RichColorSchema
@@ -49,4 +55,7 @@ AnyRichElementSchema = (
     | RichUserGroupSchema
 )
 
+#
+# Any Element Schema
+#
 AnyElementSchema = AnyInteractiveElementSchema | AnyRichElementSchema

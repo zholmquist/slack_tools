@@ -43,9 +43,4 @@ print(layout.to_api())
 See [examples](examples) for more.
 
 # Supported Components
-## Surfaces
-| Name          | Type    | Class Name   | Completed? |
-| ------------- | ------- | ------------ | :--------: |
-| Home          | surface | Home         |    [x]     |
-| Modal         | surface | Modal        |    [ ]     |
-| Workflow Step | surface | WorkflowStep |    [ ]     |
+soon.
