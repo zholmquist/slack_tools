@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 
-from slack_tools.blocks.schemas.base import (
+from slack_tools.blocks.schemas.base import ObjectSchema
+from slack_tools.blocks.schemas.type_defs import (
     ButtonStyle,
     ConversationType,
     KeyboardEvent,
-    ObjectSchema,
 )
 from slack_tools.mrkdwn.base import SyntaxToken
 from slack_tools.utils import contains_emoji
+from slack_tools.utils.dataclass_utils import Field
 
 
 @dataclass
@@ -17,7 +18,11 @@ class PlainTextSchema(ObjectSchema, block_type='plain_text'):
     [🔗 Documentation](https://api.slack.com/reference/block-kit/composition-objects#text)
     """
 
-    text: str
+    text: str = Field(
+        title='text',
+        description="""
+        """,
+    )
     emoji: bool = False
 
     def __post_init__(self):
@@ -111,3 +116,9 @@ class SlackFileSchema(ObjectSchema):
 
     id: str | None = None
     url: str | None = None
+
+    @property
+    def filetype(self) -> str:
+        if self.url:
+            return self.url.split('.')[-1]
+        return self.id.split('.')[-1]

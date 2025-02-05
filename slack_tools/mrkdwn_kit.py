@@ -1,3 +1,5 @@
+import warnings
+
 from slack_tools.mrkdwn import (
     H1,
     H2,
@@ -32,6 +34,10 @@ class MarkdownKit:
         self.strikethrough = Strikethrough
         self.new_line = Newline
 
+        self.h1 = H1.create
+        self.h2 = H2.create
+        self.h3 = H3.create
+
         self.blockquote = Quote
         self.code_inline = CodeInline
         self.code_block = CodeBlock
@@ -45,9 +51,10 @@ class MarkdownKit:
         self.compose = ComposeMarkdown
 
         if extras:
+            warnings.warn('Extras are not supported in Slack')
             self.table = MarkdownTable()
             self.todo = Todo.create
-            self.h1 = H1.create
-            self.h2 = H2.create
-            self.h3 = H3.create
             self.p = Paragraph.create
+
+
+md = MarkdownKit(extras=True)
