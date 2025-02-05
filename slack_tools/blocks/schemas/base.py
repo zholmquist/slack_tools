@@ -1,119 +1,116 @@
-import json
-from abc import ABCMeta
-from dataclasses import asdict, field, is_dataclass
-from typing import Any
+"""Block Kit Schemas: Base.
 
-from slack_tools.exceptions import LengthValidationError
-from slack_tools.utils.dataclass_utils import Field
+Base classes for Block Kit schemas.
+"""
 
+from dataclasses import dataclass, field
 
-class BlockKitMetaclass(ABCMeta):
-    def __new__(mcls, name, bases, namespace, block_type: str | None = None, **kwargs):
-        if block_type is not None:
-            annotations: dict[str, Any] = namespace.get('__annotations__', {})
-
-            if 'type' not in annotations:
-                annotations['type'] = str
-            namespace['__annotations__'] = annotations
-
-            if 'type' not in namespace:
-                namespace['type'] = block_type
-
-            # Get all Field instances and their names
-            fields = {
-                field_name: field_value
-                for field_name, field_value in namespace.items()
-                if isinstance(field_value, Field)
-            }
-
-            # Add validation to __post_init__ if it doesn't exist
-            original_post_init = namespace.get('__post_init__')
-
-            def __post_init__(self):
-                # Call original __post_init__ if it exists
-                if original_post_init:
-                    original_post_init(self)
-
-                # Validate length constraints for all fields
-                for field_name, field in fields.items():
-                    value = getattr(self, field_name)
-                    default = getattr(field, 'default', None)
-                    min_length = getattr(field, 'min_length', None)
-                    max_length = getattr(field, 'max_length', None)
-
-                    if value is not None and value != default:
-                        if min_length is not None or max_length is not None:
-                            value_length = (
-                                len(value)
-                                if isinstance(value, (str, list, tuple, dict))
-                                else len(str(value))
-                            )
-
-                            if (min_length and value_length < min_length) or (
-                                max_length and value_length > max_length
-                            ):
-                                raise LengthValidationError(
-                                    field_name,
-                                    value_length,
-                                    min_length,
-                                    max_length,
-                                )
-
-            namespace['__post_init__'] = __post_init__
-
-        return super().__new__(mcls, name, bases, namespace, **kwargs)
+from slack_tools.blocks.mixins.serializable import SerializableMixin
+from slack_tools.blocks.schemas.block_metaclass import BlockMetaclass
 
 
-class BaseSchema:
-    """Base dataclass for models."""
+class BaseSchema(SerializableMixin):
+    """Base class for Block Kit schemas.
 
-    field_validators: dict | None = field(default=None, repr=False, init=False)
-
-    def to_dict(self) -> dict:
-        """Return dictionary representation."""
-        if is_dataclass(self):
-            return asdict(self)
-        elif isinstance(self, dict):
-            return self
-        else:
-            raise ValueError(f'Invalid type: {type(self)}')
-
-    def to_json(self) -> str:
-        """Return JSON string representation."""
-        return json.dumps(self.to_dict())
+    This is where it all starts. Every schema in Block Kit builds on top of this,
+    ensuring that everything plays nicely with Slack's structure.
+    """
 
 
-class ObjectSchema(BaseSchema, metaclass=BlockKitMetaclass):
-    """Base class for objects."""
+class BaseObject(BaseSchema, metaclass=BlockMetaclass):
+    """Base class for Block Kit `Composition Objects`.
 
-    pass
+    Think of these as the ingredients inside Blocks and Elements.
+    They hold properties and data, making everything come together.
 
-
-class BlockSchema(BaseSchema, metaclass=BlockKitMetaclass):
-    """Base class for blocks."""
-
-    pass
-
-
-class ElementSchema(BaseSchema, metaclass=BlockKitMetaclass):
-    """Base class for elements."""
-
-    pass
+    References:
+        - [🔗 Block Kit Composition Objects](https://api.slack.com/reference/block-kit#composition-objects)
+    """
 
 
-class InteractiveElementSchema(ElementSchema):
-    """Base class for interactive elements."""
+class BaseElement(BaseSchema, metaclass=BlockMetaclass):
+    """Base class for Block Kit `Elements`.
 
-    pass
+    Elements are the small but mighty building blocks of a Slack UI.
+    Buttons, input fields, and other interactive bits fall into this category.
+
+    References:
+        - [🔗 Block Kit Elements](https://api.slack.com/reference/block-kit#elements)
+    """
 
 
-class RichElementSchema(ElementSchema):
-    """Base class for rich elements."""
+class BaseInteractiveElement(BaseElement):
+    """Base class for `Interactive Elements`.
 
-    pass
+    These are the elements that users can actually click, type in, or interact with.
+    If something in your UI needs user input, it's probably in this class.
+
+    References:
+        - [🔗 Block Kit Interactive Elements](https://api.slack.com/reference/block-kit#interactive-elements)
+    """
 
 
-class RichBlockSchema(BlockSchema):
-    """Base class for rich blocks."""
+class BaseRichElement(BaseElement):
+    """Base class for `Rich Elements`.
 
-    pass
+    Need to add some flair? Rich Elements help you style and format your blocks
+    to look more polished and engaging.
+
+    References:
+        - [🔗 Block Kit Rich Elements](https://api.slack.com/reference/block-kit#rich-elements)
+    """
+
+
+class BaseLayout(BaseSchema, metaclass=BlockMetaclass):
+    """Base class for `Layout` components.
+
+    This is where we start organizing things. Layouts help structure blocks
+    and elements into meaningful groups. In Slack's world, these are called `Blocks`.
+
+    If you're building a more complex UI, this is your foundation.
+
+    """
+
+
+@dataclass
+class BaseBlock(BaseLayout, metaclass=BlockMetaclass):
+    """Base class for `Blocks`.
+
+    Blocks are the fundamental pieces that make up a Slack app's UI.
+    Every message or interactive view is made up of one or more blocks.
+
+    References:
+        - [🔗 Block Kit Blocks](https://api.slack.com/reference/block-kit#blocks)
+    """
+
+    block_id: str | None = field(
+        default=None,
+        init=False,
+        metadata={
+            'title': 'block_id',
+            'description': 'A string acting as a unique identifier for a block.',
+            'max_length': 255,
+        },
+    )
+
+
+class BaseRichBlock(BaseBlock):
+    """Base class for `Rich Blocks`.
+
+    If you want to take your blocks to the next level with richer formatting,
+    this is your go-to.
+
+    References:
+        - [🔗 Block Kit Rich Blocks](https://api.slack.com/reference/block-kit/blocks#rich)
+    """
+
+
+class BaseSurface(BaseSchema, metaclass=BlockMetaclass):
+    """Base class for `Surfaces`.
+
+    A Surface is the big container that holds everything together.
+    Think of it as the Slack message or modal that displays your blocks.
+
+    References:
+        - [🔗 Block Kit Surfaces](https://api.slack.com/reference/block-kit/surfaces)
+    """

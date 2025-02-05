@@ -21,11 +21,11 @@ References:
     - [🔗 Block Kit Documentation](https://api.slack.com/reference/block-kit/block)
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Final, Literal
 
 from slack_tools.blocks.mixins.validator import TypeValidatorMixin
-from slack_tools.blocks.schemas.base import BlockSchema, RichBlockSchema
+from slack_tools.blocks.schemas.base import BaseBlock, BaseRichBlock
 from slack_tools.blocks.schemas.elements import (
     AnyInteractiveElementSchema,
     AnyRichElementSchema,
@@ -52,11 +52,10 @@ from slack_tools.mrkdwn.syntax import (
     Quote,
     Strikethrough,
 )
-from slack_tools.utils.dataclass_utils import Field
 
 
 @dataclass
-class ActionsBlockSchema(BlockSchema, block_type='actions'):
+class ActionsBlockSchema(BaseBlock, block_type='actions'):
     """Actions Block.
 
     Holds multiple interactive elements.
@@ -86,20 +85,20 @@ class ActionsBlockSchema(BlockSchema, block_type='actions'):
         - [🔗 Actions Block](https://api.slack.com/reference/block-kit/blocks#actions)
     """
 
-    elements: list[AnyInteractiveElementSchema] = Field(
-        description="""
-        An array of interactive element objects - buttons, select menus,
-        overflow menus, or date pickers.
-
-        Validation:
-            - Maximum of 25 elements in each action block.
-        """,
-        max_length=25,
+    elements: list[AnyInteractiveElementSchema] = field(
+        default_factory=list,
+        metadata={
+            'title': 'elements',
+            'description': """
+                An array of interactive element objects - buttons, select menus, overflow menus, or date pickers.
+            """,
+            'max_length': 25,
+        },
     )
 
 
 @dataclass
-class ImageBlockSchema(BlockSchema, block_type='image'):
+class ImageBlockSchema(BaseBlock, block_type='image'):
     """Image Block.
 
     Displays an image.
@@ -123,46 +122,38 @@ class ImageBlockSchema(BlockSchema, block_type='image'):
 
     _VALID_IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'gif']
 
-    alt_text: str = Field(
-        title='alt_text',
-        description="""
-        A plain-text summary of the image. This should not contain any markup.
-
-        Validation:
-            - Maximum length for this field is 2000 characters.
-        """,
-        max_length=2000,
+    alt_text: str = field(
+        metadata={
+            'title': 'alt_text',
+            'description': 'A plain-text summary of the image. This should not contain any markup.',
+            'max_length': 2000,
+        },
     )
-    image_url: str | None = Field(
+    image_url: str | None = field(
         default=None,
-        title='image_url',
-        description="""
-        The URL for a publicly hosted image. You must provide either an
-        image_url or slack_file.
-
-        Validation:
-            - Maximum length for this field is 3000 characters.
-        """,
-        max_length=3000,
+        metadata={
+            'title': 'image_url',
+            'description': 'The URL for a publicly hosted image. You must provide either an image_url or slack_file.',
+            'max_length': 3000,
+        },
     )
-    slack_file: SlackFileSchema | None = Field(
+    slack_file: SlackFileSchema | None = field(
         default=None,
-        title='slack_file',
-        description="""
-        A Slack image file object that defines the source of the image.
-        """,
+        metadata={
+            'title': 'slack_file',
+            'description': 'A Slack image file object that defines the source of the image.',
+        },
     )
-    title: PlainTextSchema | None = Field(
+    title: PlainTextSchema | None = field(
         default=None,
-        title='title',
-        description="""
-        An optional title for the image in the form of a text object that can
-        only be of type: plain_text.
-
-        Validation:
-            - Maximum length for the text in this field is 2000 characters.
-        """,
-        max_length=2000,
+        metadata={
+            'title': 'title',
+            'description': """
+                An optional title for the image in the form of a text object
+                that can only be of type: plain_text.
+            """,
+            'max_length': 2000,
+        },
     )
 
     def __post_init__(self):
@@ -180,7 +171,7 @@ class ImageBlockSchema(BlockSchema, block_type='image'):
 
 
 @dataclass
-class ContextBlockSchema(BlockSchema, TypeValidatorMixin, block_type='context'):
+class ContextBlockSchema(BaseBlock, TypeValidatorMixin, block_type='context'):
     """Context Block.
 
     Displays contextual info, which can include both images and text.
@@ -198,15 +189,13 @@ class ContextBlockSchema(BlockSchema, TypeValidatorMixin, block_type='context'):
         - [🔗 Context Block](https://api.slack.com/reference/block-kit/blocks#context)
     """
 
-    elements: list[ImageBlockSchema | MarkdownTextSchema | PlainTextSchema] = Field(
-        title='elements',
-        description="""
-        An array of image elements and text objects.
-
-        Validation:
-            - Maximum number of items is 10.
-        """,
-        max_length=10,
+    elements: list[ImageBlockSchema | MarkdownTextSchema | PlainTextSchema] = field(
+        default_factory=list,
+        metadata={
+            'title': 'elements',
+            'description': 'An array of image elements and text objects.',
+            'max_length': 10,
+        },
     )
 
     def __post_init__(self):
@@ -215,7 +204,7 @@ class ContextBlockSchema(BlockSchema, TypeValidatorMixin, block_type='context'):
 
 
 @dataclass
-class DividerBlockSchema(BlockSchema, block_type='divider'):
+class DividerBlockSchema(BaseBlock, block_type='divider'):
     """Divider Block.
 
     Visually separates pieces of info inside of a message.
@@ -235,11 +224,9 @@ class DividerBlockSchema(BlockSchema, block_type='divider'):
         - [🔗 Divider Block](https://api.slack.com/reference/block-kit/blocks#divider)
     """
 
-    pass
-
 
 @dataclass
-class FileBlockSchema(BlockSchema, block_type='file'):
+class FileBlockSchema(BaseBlock, block_type='file'):
     """File Block.
 
     Displays a remote file.
@@ -259,23 +246,28 @@ class FileBlockSchema(BlockSchema, block_type='file'):
         - [🔗 File Block](https://api.slack.com/reference/block-kit/blocks#file)
     """
 
-    external_id: str = Field(
-        title='external_id',
-        description="""
-        The external unique ID for this file.
-        """,
+    # Required field must come first
+    external_id: str = field(
+        metadata={
+            'title': 'external_id',
+            'description': 'The external unique ID for this file.',
+            'min_length': 1,
+            'max_length': 255,
+        },
     )
-    source: Final[Literal['remote']] = Field(
+
+    # Optional fields with defaults after
+    source: Final[Literal['remote']] = field(
         default='remote',
-        title='source',
-        description="""
-        At the moment, source will always be remote for a remote file.
-        """,
+        metadata={
+            'title': 'source',
+            'description': 'At the moment, source will always be remote for a remote file.',
+        },
     )
 
 
 @dataclass
-class HeaderBlockSchema(BlockSchema, block_type='header'):
+class HeaderBlockSchema(BaseBlock, block_type='header'):
     """Header block that displays a larger-sized text.
 
     This plain-text block renders in a larger, bold font and is used to delineate
@@ -293,20 +285,17 @@ class HeaderBlockSchema(BlockSchema, block_type='header'):
         - [🔗 Header Block](https://api.slack.com/reference/block-kit/blocks#header)
     """
 
-    text: PlainTextSchema = Field(
-        title='text',
-        description="""
-        The text for the block, in the form of a plain_text text object.
-
-        Validation:
-            - Maximum length for the text in this field is 150 characters.
-        """,
-        max_length=150,
+    text: PlainTextSchema = field(
+        metadata={
+            'title': 'text',
+            'description': 'The text for the block, in the form of a plain_text text object.',
+            'max_length': 150,
+        },
     )
 
 
 @dataclass
-class SectionBlockSchema(BlockSchema, TypeValidatorMixin, block_type='section'):
+class SectionBlockSchema(BaseBlock, TypeValidatorMixin, block_type='section'):
     """Section block for displaying text and interactive elements.
 
     This block displays text and can optionally include other block elements.
@@ -334,50 +323,47 @@ class SectionBlockSchema(BlockSchema, TypeValidatorMixin, block_type='section'):
         - [🔗 Section Block](https://api.slack.com/reference/block-kit/blocks#section)
     """
 
-    text: PlainTextSchema | MarkdownTextSchema | None = Field(
+    text: PlainTextSchema | MarkdownTextSchema | None = field(
         default=None,
-        title='text',
-        description="""
-        The text for the block, in the form of a text object.
-
-        Validation:
-            - Minimum length for the text in this field is 1 and maximum length is 3000 characters.
-            - This field is not required if a valid array of fields objects is provided instead.
-        """,
-        min_length=1,
-        max_length=3000,
+        metadata={
+            'title': 'text',
+            'description': 'The text for the block, in the form of a text object.',
+            'min_length': 1,
+            'max_length': 3000,
+        },
     )
 
-    accessory: ButtonSchema | ImageBlockSchema | None = Field(
+    accessory: ButtonSchema | ImageBlockSchema | None = field(
         default=None,
-        title='accessory',
-        description="""
-        One of compatible elements. Can be a `button`, `image`.
-        """,
+        metadata={
+            'title': 'accessory',
+            'description': 'One of compatible elements. Can be a `button`, `image`.',
+        },
     )
 
-    expand: bool = Field(
+    expand: bool = field(
         default=False,
-        title='expand',
-        description="""
-        Whether or not this section block's text should always expand when rendered.
-        If false or not provided, it may be rendered with a 'see more' option to expand and show the full text.
-        For AI Assistant apps, this allows the app to post long messages without
-        users needing to click 'see more' to expand the message.
-        """,
+        metadata={
+            'title': 'expand',
+            'description': """
+                Whether or not this section block's text should always expand
+                when rendered. If false or not provided, it may be rendered
+                with a "see more" option to expand and show the full text.
+                For AI Assistant apps, this allows the app to post long messages
+                without users needing to click "see more" to expand the message.
+            """,
+        },
     )
 
-    fields: list[PlainTextSchema] | None = Field(
+    fields: list[PlainTextSchema] | None = field(
         default=None,
-        title='fields',
-        description="""
-        Required if no text is provided. An array of text objects.
-
-        Validation:
-            - Maximum number of items is 10.
-            - Maximum length for the text in each item is 2000 characters.
-        """,
-        max_length=10,
+        metadata={
+            'title': 'fields',
+            'description': """
+                Required if no text is provided. An array of text objects.
+            """,
+            'max_length': 10,
+        },
     )
 
     def __post_init__(self):
@@ -402,7 +388,7 @@ class SectionBlockSchema(BlockSchema, TypeValidatorMixin, block_type='section'):
 
 
 @dataclass
-class InputBlockSchema(BlockSchema, block_type='input'):
+class InputBlockSchema(BaseBlock, block_type='input'):
     """Input Block.
     Collects information from users via block elements.
 
@@ -430,57 +416,63 @@ class InputBlockSchema(BlockSchema, block_type='input'):
         - URL input
     """
 
-    label: PlainTextSchema = Field(
-        title='label',
-        description="""
-        The label text for the block, in the form of a plain_text text object.
-        Maximum length for the text in this field is 2000 characters.
-        """,
+    label: PlainTextSchema = field(
+        metadata={
+            'title': 'label',
+            'description': """
+                The label text for the block, in the form of a plain_text text object.
+                Maximum length for the text in this field is 2000 characters.
+            """,
+            'max_length': 2000,
+        },
     )
 
-    element: AnyInteractiveElementSchema = Field(
-        title='element',
-        description="""
-        A block element. See above for full list.
-        """,
+    element: AnyInteractiveElementSchema = field(
+        metadata={
+            'title': 'element',
+            'description': """
+                A block element. See above for full list.
+            """,
+        },
     )
 
-    dispatch_action: bool = Field(
+    dispatch_action: bool = field(
         default=False,
-        title='dispatch_action',
-        description="""
-        A boolean that indicates whether or not the use of elements in this
-        block should dispatch a block_actions payload.
-        This field is incompatible with the file_input block element.
-        If dispatch_action is set to true and a file_input block element is provided,
-        an unsupported type error will be raised.
-        """,
+        metadata={
+            'title': 'dispatch_action',
+            'description': """
+                A boolean that indicates whether or not the use of elements in
+                this block should dispatch a block_actions payload. This field
+                is incompatible with the file_input block element. If dispatch_action
+                is set to true and a file_input block element is provided, an
+                unsupported type error will be raised.
+            """,
+        },
     )
 
-    hint: PlainTextSchema | None = Field(
+    hint: PlainTextSchema | None = field(
         default=None,
-        title='hint',
-        description="""
-        An optional hint that appears below an input element in a lighter grey.
-
-        Validation:
-            - Maximum length for the text in this field is 2000 characters.
-        """,
-        max_length=2000,
+        metadata={
+            'title': 'hint',
+            'description': 'An optional hint that appears below an input element in a lighter grey.',
+            'max_length': 2000,
+        },
     )
 
-    optional: bool = Field(
+    optional: bool = field(
         default=False,
-        title='optional',
-        description="""
-        A boolean that indicates whether the input element may be empty when a
-        user submits the modal.
-        """,
+        metadata={
+            'title': 'optional',
+            'description': """
+                A boolean that indicates whether the input element may be empty
+                when a user submits the modal.
+            """,
+        },
     )
 
 
 @dataclass
-class MarkdownBlockSchema(BlockSchema, block_type='markdown'):
+class MarkdownBlockSchema(BaseBlock, block_type='markdown'):
     """Markdown block.
 
     Displays formatted markdown.
@@ -524,109 +516,117 @@ class MarkdownBlockSchema(BlockSchema, block_type='markdown'):
         | H3
         # | Mention - ?
         # ! | Image - TODO!
-    ) = Field(
-        title='text',
-        description="""
-        The standard markdown-formatted text. Limit 12,000 characters max.
-        """,
-        max_length=12000,
+    ) = field(
+        metadata={
+            'title': 'text',
+            'description': 'The standard markdown-formatted text. Limit 12,000 characters max.',
+            'max_length': 12000,
+        },
     )
 
 
 @dataclass
-class RichSectionSchema(RichBlockSchema, block_type='rich_text_section'):
+class RichSectionSchema(BaseRichBlock, block_type='rich_text_section'):
     """Rich text section."""
 
-    elements: list[AnyRichElementSchema] = Field(
-        title='elements',
-        description="""
-        An array of rich text elements.
-        """,
+    elements: list[AnyRichElementSchema] = field(
+        default_factory=list,
+        metadata={
+            'title': 'elements',
+            'description': 'An array of rich text elements.',
+        },
     )
 
 
 @dataclass
-class RichTextListSchema(RichBlockSchema, block_type='rich_text_list'):
+class RichTextListSchema(BaseRichBlock, block_type='rich_text_list'):
     """Rich text list."""
 
-    elements: list[RichSectionSchema] | tuple[RichSectionSchema, ...] = Field(
-        title='elements',
-        description="""
-        An array of rich text section objects containing two properties:
-            - type, which is "rich_text_section"
-            - elements, which is an array of rich text element objects.
-        """,
+    elements: list[RichSectionSchema] | tuple[RichSectionSchema, ...] = field(
+        default_factory=list,
+        metadata={
+            'title': 'elements',
+            'description': """
+                An array of rich text section objects containing two properties:
+                - type, which is "rich_text_section"
+                - elements, which is an array of rich text element objects.
+            """,
+        },
     )
-    style: Literal['ordered', 'bullet'] = Field(
+    style: Literal['ordered', 'bullet'] = field(
         default='bullet',
-        title='style',
-        description="""
-        Either bullet or ordered, the latter meaning a numbered list.
-        """,
+        metadata={
+            'title': 'style',
+            'description': """
+                Either bullet or ordered, the latter meaning a numbered list.
+            """,
+        },
     )
-    indent: int | None = Field(
+    indent: int | None = field(
         default=None,
-        title='indent',
-        description="""
-        Number of pixels to indent the list.
-        """,
+        metadata={
+            'title': 'indent',
+            'description': 'Number of pixels to indent the list.',
+        },
     )
-    offset: int | None = Field(
+    offset: int | None = field(
         default=None,
-        title='offset',
-        description="""
-        Number of pixels to offset the list.
-        """,
+        metadata={
+            'title': 'offset',
+            'description': 'Number of pixels to offset the list.',
+        },
     )
-    border: int | None = Field(
+    border: int | None = field(
         default=None,
-        title='border',
-        description="""
-        Number of pixels of border thickness.
-        """,
+        metadata={
+            'title': 'border',
+            'description': 'Number of pixels of border thickness.',
+        },
     )
 
 
 @dataclass
-class RichPreformattedSchema(RichBlockSchema, block_type='rich_text_preformatted'):
+class RichPreformattedSchema(BaseRichBlock, block_type='rich_text_preformatted'):
     """Rich text preformatted."""
 
-    elements: list[AnyRichElementSchema] = Field(
-        title='elements',
-        description="""
-        An array of rich text elements.
-        """,
+    elements: list[AnyRichElementSchema] = field(
+        default_factory=list,
+        metadata={
+            'title': 'elements',
+            'description': 'An array of rich text elements.',
+        },
     )
-    border: int | None = Field(
+    border: int | None = field(
         default=None,
-        title='border',
-        description="""
-        Number of pixels of border thickness.
-        """,
+        metadata={
+            'title': 'border',
+            'description': 'Number of pixels of border thickness.',
+        },
     )
 
 
 @dataclass
-class RichQuoteSchema(RichBlockSchema, block_type='rich_text_quote'):
+class RichQuoteSchema(BaseRichBlock, block_type='rich_text_quote'):
     """Rich text quote."""
 
-    elements: list[AnyRichElementSchema] = Field(
-        title='elements',
-        description="""
-        An array of rich text elements.
-        """,
+    elements: list[AnyRichElementSchema] = field(
+        default_factory=list,
+        metadata={
+            'title': 'elements',
+            'description': 'An array of rich text elements.',
+        },
     )
-    border: int | None = Field(
+    border: int | None = field(
         default=None,
-        title='border',
-        description="""
-        Number of pixels of border thickness.
-        """,
+        metadata={
+            'title': 'border',
+            'description': 'Number of pixels of border thickness.',
+        },
     )
 
 
 @dataclass
-class RichTextBlockSchema(BlockSchema, block_type='rich_text'):
+class RichTextBlockSchema(BaseBlock, block_type='rich_text'):
     """Rich Text Block.
 
     Displays formatted, structured representation of text.
@@ -670,20 +670,17 @@ class RichTextBlockSchema(BlockSchema, block_type='rich_text'):
         | RichTextListSchema
         | RichPreformattedSchema
         | RichQuoteSchema
-    ] = Field(
-        title='elements',
-        description="""
-        An array of rich text objects:
-            - rich_text_section
-            - rich_text_list
-            - rich_text_preformatted
-            - rich_text_quote
-        """,
+    ] = field(
+        default_factory=list,
+        metadata={
+            'title': 'elements',
+            'description': 'An array of rich text objects:',
+        },
     )
 
 
 @dataclass
-class VideoBlockSchema(BlockSchema, block_type='video'):
+class VideoBlockSchema(BaseBlock, block_type='video'):
     """Video block for embedding video content in Slack.
 
     Displays an embedded video player within Slack app surfaces, including
@@ -718,76 +715,86 @@ class VideoBlockSchema(BlockSchema, block_type='video'):
         - [🔗 Video Block](https://api.slack.com/reference/block-kit/blocks#video)
     """
 
-    alt_text: str = Field(
-        title='alt_text',
-        description="""
-        A tooltip for the video. Required for accessibility
-        """,
+    title: PlainTextSchema = field(
+        metadata={
+            'title': 'title',
+            'description': """
+                Video title in the form of a text object that must have type of plain_text.
+                text within must be less than 200 characters.
+            """,
+            'max_length': 200,
+        },
     )
-    author_name: str | None = Field(
+
+    thumbnail_url: str = field(
+        metadata={
+            'title': 'thumbnail_url',
+            'description': 'The thumbnail image URL',
+        },
+    )
+
+    video_url: str = field(
+        metadata={
+            'title': 'video_url',
+            'description': """
+                The URL to be embedded. Must match any existing unfurl domains
+                within the app and point to a HTTPS URL.
+            """,
+        },
+    )
+
+    alt_text: str = field(
+        init=False,
+        metadata={
+            'title': 'alt_text',
+            'description': 'A tooltip for the video. Required for accessibility',
+        },
+    )
+
+    author_name: str | None = field(
         default=None,
-        title='author_name',
-        description="""
-        Author name to be displayed. Must be less than 50 characters.
-        """,
-        max_length=50,
+        metadata={
+            'title': 'author_name',
+            'description': 'Author name to be displayed. Must be less than 50 characters.',
+            'max_length': 50,
+        },
     )
 
-    description: PlainTextSchema | None = Field(  # Preferred.
+    title_url: str | None = field(
         default=None,
-        title='description',
-        description="""
-        Description for video in the form of a text object that must have type of plain_text.
-        text within must be less than 200 characters.
-        """,
-        max_length=200,
+        metadata={
+            'title': 'title_url',
+            'description': """
+                Hyperlink for the title text. Must correspond to the non-embeddable
+                URL for the video. Must go to an HTTPS URL.
+            """,
+        },
     )
 
-    provider_icon_url: str | None = Field(
+    description: PlainTextSchema | None = field(
         default=None,
-        title='provider_icon_url',
-        description="""
-        Icon for the video provider, e.g. YouTube icon.
-        """,
+        metadata={
+            'title': 'description',
+            'description': """
+                Description for video in the form of a text object that must have type of plain_text.
+                text within must be less than 200 characters.
+            """,
+            'max_length': 200,
+        },
     )
 
-    provider_name: str | None = Field(
+    provider_icon_url: str | None = field(
         default=None,
-        title='provider_name',
-        description="""
-        The originating application or domain of the video, e.g. YouTube.
-        """,
+        metadata={
+            'title': 'provider_icon_url',
+            'description': 'Icon for the video provider, e.g. YouTube icon.',
+        },
     )
 
-    title: PlainTextSchema = Field(
-        title='title',
-        description="""
-        Video title in the form of a text object that must have type of plain_text.
-        text within must be less than 200 characters.
-        """,
-        max_length=200,
-    )
-
-    title_url: str | None = Field(  # Preferred.
+    provider_name: str | None = field(
         default=None,
-        title='title_url',
-        description="""
-        Hyperlink for the title text. Must correspond to the non-embeddable URL
-        for the video. Must go to an HTTPS URL.
-        """,
-    )
-
-    thumbnail_url: str = Field(
-        title='thumbnail_url',
-        description="""
-        The thumbnail image URL
-        """,
-    )
-
-    video_url: str = Field(
-        title='video_url',
-        description="""
-        The URL to be embedded. Must match any existing unfurl domains within the
-        app and point to a HTTPS URL.
-        """,
+        metadata={
+            'title': 'provider_name',
+            'description': 'The originating application or domain of the video, e.g. YouTube.',
+        },
     )

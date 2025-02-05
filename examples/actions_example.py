@@ -68,4 +68,5 @@ if __name__ == '__main__':
     callback_three()
 
     # Print markdown text directly
-    print(layout.as_builder_url())
+    url = layout.as_builder_url()
+    url.to_clipboard()

@@ -1,5 +1,3 @@
-import warnings
-
 from slack_tools.mrkdwn import (
     H1,
     H2,
@@ -51,7 +49,6 @@ class MarkdownKit:
         self.compose = ComposeMarkdown
 
         if extras:
-            warnings.warn('Extras are not supported in Slack')
             self.table = MarkdownTable()
             self.todo = Todo.create
             self.p = Paragraph.create

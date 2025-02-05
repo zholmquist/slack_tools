@@ -1,7 +1,7 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
-from slack_tools.blocks.schemas.base import InteractiveElementSchema
+from slack_tools.blocks.schemas.base import BaseInteractiveElement
 from slack_tools.blocks.schemas.objects import (
     ButtonStyle,
     ConfirmationDialogSchema,
@@ -9,25 +9,28 @@ from slack_tools.blocks.schemas.objects import (
     OptionSchema,
     PlainTextSchema,
 )
-from slack_tools.utils.dataclass_utils import Field
 
 
 @dataclass
-class ButtonSchema:  # (InteractiveElementSchema, block_type='button'):
+class ButtonSchema(BaseInteractiveElement, block_type='button'):
     """Button. Allows users a direct path to performing basic actions.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/block-elements#button)
     """
 
-    text: PlainTextSchema = Field(
-        title='Text Field',
-        description='A field for the text',
+    text: PlainTextSchema = field(
+        metadata={
+            'title': 'Text Field',
+            'description': 'A field for the text',
+        },
     )
 
-    url: str = Field(
+    url: str = field(
         default=None,
-        title='URL Field',
-        description='A field for the URL',
+        metadata={
+            'title': 'URL Field',
+            'description': 'A field for the URL',
+        },
     )
     style: ButtonStyle | None = None
     value: str | None = None
@@ -36,7 +39,7 @@ class ButtonSchema:  # (InteractiveElementSchema, block_type='button'):
 
 
 @dataclass
-class CheckboxesSchema(InteractiveElementSchema, block_type='checkboxes'):
+class CheckboxesSchema(BaseInteractiveElement, block_type='checkboxes'):
     """Checkbox Collection.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/block-elements#checkboxes)
@@ -50,7 +53,7 @@ class CheckboxesSchema(InteractiveElementSchema, block_type='checkboxes'):
 
 
 @dataclass
-class RadioButtonsSchema(InteractiveElementSchema, block_type='radio_buttons'):
+class RadioButtonsSchema(BaseInteractiveElement, block_type='radio_buttons'):
     """Radio Buttons.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/block-elements#radio)
@@ -62,7 +65,7 @@ class RadioButtonsSchema(InteractiveElementSchema, block_type='radio_buttons'):
 
 
 @dataclass
-class EmailInputSchema(InteractiveElementSchema, block_type='email_text_input'):
+class EmailInputSchema(BaseInteractiveElement, block_type='email_text_input'):
     """Email Input."""
 
     # dispatch_action_config: DispatchActionConfig | None = None
@@ -73,7 +76,7 @@ class EmailInputSchema(InteractiveElementSchema, block_type='email_text_input'):
 
 
 @dataclass
-class PlainTextInputSchema(InteractiveElementSchema, block_type='plain_text_input'):
+class PlainTextInputSchema(BaseInteractiveElement, block_type='plain_text_input'):
     """Plain Text Input."""
 
     multiline: bool = False
@@ -87,7 +90,7 @@ class PlainTextInputSchema(InteractiveElementSchema, block_type='plain_text_inpu
 
 
 @dataclass
-class URLInputSchema(InteractiveElementSchema, block_type='url_text_input'):
+class URLInputSchema(BaseInteractiveElement, block_type='url_text_input'):
     """URL Input."""
 
     dispatch_action_config: DispatchActionConfigSchema | None = None
@@ -98,7 +101,7 @@ class URLInputSchema(InteractiveElementSchema, block_type='url_text_input'):
 
 
 @dataclass
-class NumberInputSchema(InteractiveElementSchema, block_type='number_input'):
+class NumberInputSchema(BaseInteractiveElement, block_type='number_input'):
     """Number Input."""
 
     is_decimal_allowed: bool = False
@@ -115,7 +118,7 @@ class NumberInputSchema(InteractiveElementSchema, block_type='number_input'):
 # File block_block_type Element
 #
 @dataclass
-class FileInputSchema(InteractiveElementSchema, block_type='file_input'):
+class FileInputSchema(BaseInteractiveElement, block_type='file_input'):
     """File Input."""
 
     file_types: str | None = None
@@ -127,7 +130,7 @@ class FileInputSchema(InteractiveElementSchema, block_type='file_input'):
 # Date and Time block_type Elements
 #
 @dataclass
-class DatePickerSchema(InteractiveElementSchema, block_type='datepicker'):
+class DatePickerSchema(BaseInteractiveElement, block_type='datepicker'):
     """Datepicker."""
 
     initial_date: datetime | None = None
@@ -137,7 +140,7 @@ class DatePickerSchema(InteractiveElementSchema, block_type='datepicker'):
 
 
 @dataclass
-class DateTimePickerSchema(InteractiveElementSchema, block_type='datetimepicker'):
+class DateTimePickerSchema(BaseInteractiveElement, block_type='datetimepicker'):
     """DateTime Picker."""
 
     initial_date: datetime | None = None
@@ -146,7 +149,7 @@ class DateTimePickerSchema(InteractiveElementSchema, block_type='datetimepicker'
 
 
 @dataclass
-class TimePickerSchema(InteractiveElementSchema, block_type='timepicker'):
+class TimePickerSchema(BaseInteractiveElement, block_type='timepicker'):
     """Time Picker."""
 
     initial_time: str | None = None
