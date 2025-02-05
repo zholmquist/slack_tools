@@ -135,7 +135,7 @@ class SectionBlock(SectionBlockSchema):
         return None
 
 
-class RichSection(RichSectionSchema):
+class RichSection(RichSectionSchema, CollectableElementMixin[AnyRichElement]):
     @classmethod
     def create(cls, elements: list[AnyRichElement]) -> Self:
         return cls(elements=elements)
@@ -157,8 +157,19 @@ class RichTextList(RichTextListSchema):
             elements=elements, style=style, indent=indent, offset=offset, border=border
         )
 
+    def __getitem__(
+        self: Self, items: RichSection | tuple[RichSection, ...] | list[RichSection]
+    ) -> Self:
+        """Add items to the designated collection field."""
+        if isinstance(items, tuple):
+            items = list(items)
+        elif not isinstance(items, list):
+            items = [items]
 
-class RichPreformatted(RichPreformattedSchema):
+        return self.__class__(**{'elements': items})
+
+
+class RichPreformatted(RichPreformattedSchema, CollectableElementMixin[AnyRichElement]):
     @classmethod
     def create(
         cls,
@@ -170,7 +181,7 @@ class RichPreformatted(RichPreformattedSchema):
         return cls(elements=elements, border=border)
 
 
-class RichQuote(RichQuoteSchema):
+class RichQuote(RichQuoteSchema, CollectableElementMixin[AnyRichElement]):
     @classmethod
     def create(
         cls,
@@ -185,7 +196,7 @@ class RichQuote(RichQuoteSchema):
 AnyRichBlock = RichSection | RichTextList | RichPreformatted | RichQuote
 
 
-class RichTextBlock(RichTextBlockSchema):
+class RichTextBlock(RichTextBlockSchema, CollectableElementMixin[AnyRichBlock]):
     @classmethod
     def create(cls, elements: list[AnyRichBlock]) -> Self:
         return cls(elements=elements)

@@ -4,7 +4,7 @@ from slack_tools.blocks.mixins.collectable import CollectableElementMixin
 from slack_tools.blocks.objects import (
     Option,
 )
-from slack_tools.blocks.schemas.base import InteractiveElementSchema
+from slack_tools.blocks.schemas.base import BaseInteractiveElement
 from slack_tools.blocks.schemas.objects import (
     ConfirmationDialogSchema,
     ConversationFilterSchema,
@@ -12,7 +12,7 @@ from slack_tools.blocks.schemas.objects import (
 )
 from slack_tools.blocks.text import PlainText
 
-InteractiveElement = InteractiveElementSchema
+InteractiveElement = BaseInteractiveElement
 
 
 @dataclass

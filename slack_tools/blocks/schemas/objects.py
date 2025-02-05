@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from slack_tools.blocks.schemas.base import ObjectSchema
+from slack_tools.blocks.schemas.base import BaseObject
 from slack_tools.blocks.schemas.type_defs import (
     ButtonStyle,
     ConversationType,
@@ -8,20 +8,23 @@ from slack_tools.blocks.schemas.type_defs import (
 )
 from slack_tools.mrkdwn.base import SyntaxToken
 from slack_tools.utils import contains_emoji
-from slack_tools.utils.dataclass_utils import Field
 
 
 @dataclass
-class PlainTextSchema(ObjectSchema, block_type='plain_text'):
+class PlainTextSchema(BaseObject, block_type='plain_text'):
     """Plain Text: Defines an object containing some text.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/composition-objects#text)
     """
 
-    text: str = Field(
-        title='text',
-        description="""
-        """,
+    text: str = field(
+        metadata={
+            'title': 'text',
+            'description': """
+                The text for the block, in the form of a text object.
+            """,
+            'max_length': 3000,
+        },
     )
     emoji: bool = False
 
@@ -34,7 +37,7 @@ class PlainTextSchema(ObjectSchema, block_type='plain_text'):
 
 
 @dataclass
-class MarkdownTextSchema(ObjectSchema, block_type='mrkdwn'):
+class MarkdownTextSchema(BaseObject, block_type='mrkdwn'):
     """Markdown Text: Defines an object containing some text.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/composition-objects#text)
@@ -49,7 +52,7 @@ class MarkdownTextSchema(ObjectSchema, block_type='mrkdwn'):
 
 
 @dataclass
-class ConfirmationDialogSchema(ObjectSchema):
+class ConfirmationDialogSchema(BaseObject):
     """Confirmation Dialog: A confirmation dialog step.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/composition-objects#confirm)
@@ -63,7 +66,7 @@ class ConfirmationDialogSchema(ObjectSchema):
 
 
 @dataclass
-class ConversationFilterSchema(ObjectSchema):
+class ConversationFilterSchema(BaseObject):
     """Filter."""
 
     include: list[ConversationType] | None = None
@@ -72,7 +75,7 @@ class ConversationFilterSchema(ObjectSchema):
 
 
 @dataclass
-class DispatchActionConfigSchema(ObjectSchema):
+class DispatchActionConfigSchema(BaseObject):
     """Dispatch action config.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/composition-objects#dispatch_action_config)
@@ -82,7 +85,7 @@ class DispatchActionConfigSchema(ObjectSchema):
 
 
 @dataclass
-class OptionSchema(ObjectSchema):
+class OptionSchema(BaseObject):
     """Option: An item in a number of item selection elements.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/composition-objects#option)
@@ -95,7 +98,7 @@ class OptionSchema(ObjectSchema):
 
 
 @dataclass
-class OptionGroupSchema(ObjectSchema):
+class OptionGroupSchema(BaseObject):
     """Option Group: Defines a way to group options in a menu.
 
 
@@ -108,7 +111,7 @@ class OptionGroupSchema(ObjectSchema):
 
 
 @dataclass
-class SlackFileSchema(ObjectSchema):
+class SlackFileSchema(BaseObject):
     """Slack File object.
 
     [🔗 Documentation](https://api.slack.com/reference/block-kit/composition-objects#slack_file)

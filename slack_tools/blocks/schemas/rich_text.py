@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from slack_tools.blocks.schemas.base import RichElementSchema
+from slack_tools.blocks.schemas.base import BaseRichElement
 
 __all__ = [
     'RichBroadcastSchema',
@@ -41,21 +41,21 @@ class StyleRichMentionSchema:
 
 
 @dataclass
-class RichBroadcastSchema(RichElementSchema, block_type='broadcast'):
+class RichBroadcastSchema(BaseRichElement, block_type='broadcast'):
     """Rich broadcast."""
 
     range: Literal['here', 'channel', 'everyone']
 
 
 @dataclass
-class RichColorSchema(RichElementSchema, block_type='color'):
+class RichColorSchema(BaseRichElement, block_type='color'):
     """Rich color."""
 
     color: str
 
 
 @dataclass
-class RichChannelSchema(RichElementSchema, block_type='channel'):
+class RichChannelSchema(BaseRichElement, block_type='channel'):
     """Rich channel."""
 
     channel_id: str
@@ -63,7 +63,7 @@ class RichChannelSchema(RichElementSchema, block_type='channel'):
 
 
 @dataclass
-class RichDateSchema(RichElementSchema, block_type='date'):
+class RichDateSchema(BaseRichElement, block_type='date'):
     """Rich date."""
 
     timestamp: int
@@ -73,7 +73,7 @@ class RichDateSchema(RichElementSchema, block_type='date'):
 
 
 @dataclass
-class RichEmojiSchema(RichElementSchema, block_type='emoji'):
+class RichEmojiSchema(BaseRichElement, block_type='emoji'):
     """Rich emoji."""
 
     name: str
@@ -81,7 +81,7 @@ class RichEmojiSchema(RichElementSchema, block_type='emoji'):
 
 
 @dataclass
-class RichLinkSchema(RichElementSchema, block_type='link'):
+class RichLinkSchema(BaseRichElement, block_type='link'):
     """Rich link."""
 
     url: str
@@ -91,7 +91,7 @@ class RichLinkSchema(RichElementSchema, block_type='link'):
 
 
 @dataclass
-class RichTextSchema(RichElementSchema, block_type='text'):
+class RichTextSchema(BaseRichElement, block_type='text'):
     """Rich text."""
 
     text: str
@@ -99,7 +99,7 @@ class RichTextSchema(RichElementSchema, block_type='text'):
 
 
 @dataclass
-class RichUserSchema(RichElementSchema, block_type='user'):
+class RichUserSchema(BaseRichElement, block_type='user'):
     """Rich user."""
 
     user_id: str
@@ -107,7 +107,7 @@ class RichUserSchema(RichElementSchema, block_type='user'):
 
 
 @dataclass
-class RichUserGroupSchema(RichElementSchema, block_type='usergroup'):
+class RichUserGroupSchema(BaseRichElement, block_type='usergroup'):
     """Rich user group."""
 
     user_group_id: str

@@ -1,10 +1,10 @@
 import textwrap
-from dataclasses import dataclass, field
+from dataclasses import field
 from typing import Any
 
 
 def clean_text(text: str | None) -> str | None:
-    """Clean text by removing extra whitespace and dedenting.
+    """Clean text by removing extra whitespace and de-denting.
 
     Args:
         text: The text to clean
@@ -28,59 +28,12 @@ def clean_text(text: str | None) -> str | None:
     return ' '.join(line for line in lines if line)
 
 
-class Field(Any):
-    def __init__(
-        self,
-        *,
-        default: Any = None,
-        title: str | None = None,
-        description: str | None = None,
-        min_length: int | None = None,
-        max_length: int | None = None,
-    ) -> None:
-        self._default = default
-        self._min_length = min_length
-        self._max_length = max_length
-        self._field = field(
-            default=default,
-            metadata={
-                'title': title,
-                'description': clean_text(description),
-                'min_length': min_length,
-                'max_length': max_length,
-            },
-        )
-
-    @property
-    def default(self) -> Any:
-        return self._default
-
-    @property
-    def min_length(self) -> int | None:
-        return self._min_length
-
-    @property
-    def max_length(self) -> int | None:
-        return self._max_length
-
-    def __get__(self, obj, _=None) -> Any:
-        if obj is None:
-            return self._field
-        return getattr(obj, f'_field_{id(self)}', self._default)
-
-    def __set__(self, obj, value: Any) -> None:
-        setattr(obj, f'_field_{id(self)}', value)
-
-
-@dataclass
-class ButtonSchema:
-    """Button. Allows users a direct path to performing basic actions.
-
-    [🔗 Documentation](https://api.slack.com/reference/block-kit/block-elements#button)
-    """
-
-    url: str = Field(
-        default=None,
-        title='URL Field',
-        description='A field for the URL',
-    )
+def remove_none(data: Any) -> Any:
+    """Recursively remove all None values from dicts, lists, and tuples."""
+    if isinstance(data, dict):
+        return {k: remove_none(v) for k, v in data.items() if v is not None}
+    if isinstance(data, list):
+        return [remove_none(item) for item in data if item is not None]
+    if isinstance(data, tuple):
+        return tuple(remove_none(item) for item in data if item is not None)
+    return data

@@ -56,7 +56,7 @@ from slack_tools.blocks.rich_text import (
     RichUserGroup,
 )
 from slack_tools.blocks.text import MarkdownText, PlainText
-from slack_tools.utils import remove_none
+from slack_tools.utils.dataclass_utils import remove_none
 
 
 class BlockKitActions:
@@ -128,11 +128,11 @@ class BlockKit(BlockKitActions, BlockKitPreviewMixin):
         self.divider = DividerBlock.create
         self.header = HeaderBlock.create
         self.section = SectionBlock.create
-        self.rich_text_section = RichSection(elements=[])
+        self.rich_section = RichSection(elements=[])
         self.rich_text_list = RichTextList(elements=[])
         self.rich_text_preformatted = RichPreformatted(elements=[])
         self.rich_text_quote = RichQuote(elements=[])
-        self.rich_text_block = RichTextBlock(elements=[])
+        self.rich_block = RichTextBlock(elements=[])
 
     def get_callback_fn(self, action_id: str) -> Callable:
         if not self.action_handler:

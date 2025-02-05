@@ -2,10 +2,8 @@ import uuid
 from datetime import datetime
 from typing import Callable, Self
 
-from slack_tools.blocks.mixins import (
-    CallableElementMixin,
-    CollectableElementMixin,
-)
+from slack_tools.blocks.mixins.callable import CallableElementMixin
+from slack_tools.blocks.mixins.collectable import CollectableElementMixin
 from slack_tools.blocks.objects import Option
 from slack_tools.blocks.schemas.interactive import (
     ButtonSchema,

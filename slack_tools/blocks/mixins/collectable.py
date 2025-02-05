@@ -1,8 +1,8 @@
 from typing import Generic, Self, TypeVar
 
-from slack_tools.blocks.schemas.base import BaseSchema
+from slack_tools.blocks.schemas.base import BaseElement, BaseRichElement
 
-T = TypeVar('T', bound=BaseSchema)
+T = TypeVar('T', bound=BaseElement)
 
 
 class CollectableElementMixin(Generic[T]):
@@ -17,4 +17,12 @@ class CollectableElementMixin(Generic[T]):
             items = list(items)
         elif not isinstance(items, list):
             items = [items]
+
+        if all(hasattr(item, 'elements') for item in items):
+            self._collect_field = 'elements'
+        elif all(isinstance(item, BaseRichElement) for item in items):
+            self._collect_field = 'elements'
+        else:
+            raise ValueError(f'Cannot determine collection field for items: {items}')
+
         return self.__class__(**{self._collect_field: items})
