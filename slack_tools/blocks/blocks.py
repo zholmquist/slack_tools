@@ -1,8 +1,6 @@
-from dataclasses import dataclass
 from typing import Literal, Self, Sequence, TypeAlias
 
 from slack_tools.actions.schemas import ActionCallback
-from slack_tools.blocks.base import BaseBlock
 from slack_tools.blocks.interactive import (
     Button,
     Checkboxes,
@@ -10,7 +8,6 @@ from slack_tools.blocks.interactive import (
     DateTimePicker,
     EmailInput,
     FileInput,
-    Image,
     NumberInput,
     PlainTextInput,
     RadioButtons,
@@ -32,13 +29,25 @@ from slack_tools.blocks.menus import (
 )
 from slack_tools.blocks.mixins.collectable import CollectableElementMixin
 from slack_tools.blocks.rich_text import AnyRichElement
+from slack_tools.blocks.schemas.blocks import (
+    ActionsBlockSchema,
+    ContextBlockSchema,
+    DividerBlockSchema,
+    HeaderBlockSchema,
+    ImageSchema,
+    RichPreformattedSchema,
+    RichQuoteSchema,
+    RichSectionSchema,
+    RichTextBlockSchema,
+    RichTextListSchema,
+    SectionBlockSchema,
+)
 from slack_tools.blocks.text import MarkdownText, PlainText
 from slack_tools.mrkdwn.base import SyntaxToken
 
 AnyElement = (
-    Image
     # Interactive
-    | Button
+    Button
     | Checkboxes
     | DatePicker
     | DateTimePicker
@@ -66,67 +75,50 @@ AnyElement = (
 ElementType: TypeAlias = AnyElement | Sequence[AnyElement] | tuple[AnyElement, ...]
 
 
-@dataclass
-class ActionsBlock(
-    BaseBlock,
-    CollectableElementMixin[ElementType],
-    block_type='actions',
-):
-    elements: list[ElementType]
+class Image(ImageSchema):
+    @classmethod
+    def create(
+        cls,
+        alt_text: str,
+        /,
+        *,
+        image_url: str | None = None,
+    ) -> Self:
+        return cls(alt_text=alt_text, image_url=image_url)
 
 
-@dataclass
-class ContextBlock(
-    BaseBlock,
-    CollectableElementMixin[ElementType],
-    block_type='context',
-):
-    """Context block."""
-
-    elements: list[Image]
+class ActionsBlock(ActionsBlockSchema, CollectableElementMixin[ElementType]):
+    @classmethod
+    def create(cls, elements: list[ElementType]) -> Self:
+        return cls(elements=elements)
 
 
-@dataclass
-class DividerBlock(BaseBlock, block_type='divider'):
-    """Divider block."""
+class ContextBlock(ContextBlockSchema, CollectableElementMixin[ElementType]):
+    @classmethod
+    def create(cls, elements: list[ElementType]) -> Self:
+        return cls(elements=elements)
 
+
+class DividerBlock(DividerBlockSchema):
     @classmethod
     def create(cls) -> Self:
-        """Create a divider block."""
         return cls()
 
 
-@dataclass
-class HeaderBlock(BaseBlock, block_type='header'):
-    """Header block."""
-
-    text: PlainText
-
+class HeaderBlock(HeaderBlockSchema):
     @classmethod
     def create(cls, text: str) -> Self:
-        """Create a header block."""
         return cls(text=PlainText(text=text))
 
 
-@dataclass
-class SectionBlock(BaseBlock, block_type='section'):
-    """Section block."""
-
-    text: PlainText | MarkdownText
-    accessory: Button | Image | None = None
-
-    def get_action(self) -> ActionCallback | None:
-        if self.accessory:
-            return self.accessory.get_action()
-        return None
-
+class SectionBlock(SectionBlockSchema):
     @classmethod
     def create(
         cls,
         text: str | SyntaxToken,
         /,
         *,
-        accessory: Button | Image | None = None,
+        accessory: Button | None = None,  # Image
     ) -> Self:
         """Create a section block."""
         if isinstance(text, SyntaxToken):
@@ -137,72 +129,78 @@ class SectionBlock(BaseBlock, block_type='section'):
 
         return cls(text=text, accessory=accessory)
 
-
-class RichBlock(BaseBlock):
-    """Rich block."""
-
-    pass
-
-
-@dataclass
-class RichSection(
-    RichBlock,
-    CollectableElementMixin[AnyRichElement],
-    block_type='rich_text_section',
-):
-    """Rich text section."""
-
-    elements: list[AnyRichElement]
+    def get_action(self) -> ActionCallback | None:
+        if self.accessory and isinstance(self.accessory, Button):
+            return self.accessory.get_action()
+        return None
 
 
-@dataclass
-class RichTextList(
-    RichBlock,
-    CollectableElementMixin[RichSection],
-    block_type='rich_text_list',
-):
-    """Rich text list."""
-
-    elements: list[RichSection] | tuple[RichSection, ...]
-    style: Literal['ordered', 'bullet'] = 'bullet'
-    indent: int | None = None
-    offset: int | None = None
-    border: int | None = None
+class RichSection(RichSectionSchema):
+    @classmethod
+    def create(cls, elements: list[AnyRichElement]) -> Self:
+        return cls(elements=elements)
 
 
-@dataclass
-class RichPreformatted(
-    RichBlock,
-    CollectableElementMixin[AnyRichElement],
-    block_type='rich_text_preformatted',
-):
-    """Rich text preformatted."""
+class RichTextList(RichTextListSchema):
+    @classmethod
+    def create(
+        cls,
+        elements: list[RichSection],
+        /,
+        *,
+        style: Literal['ordered', 'bullet'] = 'bullet',
+        indent: int | None = None,
+        offset: int | None = None,
+        border: int | None = None,
+    ) -> Self:
+        return cls(
+            elements=elements, style=style, indent=indent, offset=offset, border=border
+        )
 
-    elements: list[AnyRichElement]
-    border: int | None = None
+
+class RichPreformatted(RichPreformattedSchema):
+    @classmethod
+    def create(
+        cls,
+        elements: list[AnyRichElement],
+        /,
+        *,
+        border: int | None = None,
+    ) -> Self:
+        return cls(elements=elements, border=border)
 
 
-@dataclass
-class RichQuote(
-    RichBlock,
-    CollectableElementMixin[AnyRichElement],
-    block_type='rich_text_quote',
-):
-    """Rich text quote."""
-
-    elements: list[AnyRichElement]
-    border: int | None = None
+class RichQuote(RichQuoteSchema):
+    @classmethod
+    def create(
+        cls,
+        elements: list[AnyRichElement],
+        /,
+        *,
+        border: int | None = None,
+    ) -> Self:
+        return cls(elements=elements, border=border)
 
 
 AnyRichBlock = RichSection | RichTextList | RichPreformatted | RichQuote
 
 
-@dataclass
-class RichTextBlock(
-    BaseBlock,
-    CollectableElementMixin[AnyRichBlock],
-    block_type='rich_text',
-):
-    """Rich text block."""
+class RichTextBlock(RichTextBlockSchema):
+    @classmethod
+    def create(cls, elements: list[AnyRichBlock]) -> Self:
+        return cls(elements=elements)
 
-    elements: list[AnyRichBlock]
+
+AnyBlock = (
+    Image
+    | ActionsBlock
+    | ContextBlock
+    | DividerBlock
+    | HeaderBlock
+    | SectionBlock
+    | RichSection
+    | RichTextList
+    | RichPreformatted
+    | RichQuote
+    | RichTextBlock
+)

@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 AnyItems = str | tuple[Any, ...] | list[Any]
 
@@ -13,11 +13,9 @@ class MarkdownStr(str):
 
 
 class SyntaxToken(MarkdownStr):
-    """A Markdown Token (e.g., bold, italic, strikethrough).
+    """A Markdown Token (e.g., bold, italic, strikethrough)."""
 
-    # TODO: Check for and escape characters: &, <, >
-    """
-
+    _render_as: Literal['inline', 'block'] = 'inline'
     _template: str = '{}'  # default template
 
     def __new__(cls, value: str | None = None, /) -> 'SyntaxToken':

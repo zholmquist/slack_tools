@@ -1,14 +1,18 @@
 from dataclasses import dataclass
 
-from slack_tools.blocks.base import InteractiveElement
 from slack_tools.blocks.mixins.collectable import CollectableElementMixin
 from slack_tools.blocks.objects import (
-    ConfirmationDialog,
-    ConversationFilter,
     Option,
-    OptionGroup,
+)
+from slack_tools.blocks.schemas.base import InteractiveElementSchema
+from slack_tools.blocks.schemas.objects import (
+    ConfirmationDialogSchema,
+    ConversationFilterSchema,
+    OptionGroupSchema,
 )
 from slack_tools.blocks.text import PlainText
+
+InteractiveElement = InteractiveElementSchema
 
 
 @dataclass
@@ -20,7 +24,7 @@ class OverflowMenu(
     """Overflow Menu."""
 
     options: list[Option]
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     action_id: str | None = None
 
 
@@ -33,10 +37,10 @@ class StaticMultiSelectMenu(
     """Static Multi-Select Menu."""
 
     options: list[Option]
-    option_groups: list[OptionGroup] | None = None
+    option_groups: list[OptionGroupSchema] | None = None
     initial_options: list[Option] | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -52,10 +56,10 @@ class StaticSelectMenu(
     """Static Multi-Select Menu."""
 
     options: list[Option]
-    option_groups: list[OptionGroup] | None = None
+    option_groups: list[OptionGroupSchema] | None = None
     initial_option: Option | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -71,11 +75,11 @@ class ExternalSelectMenu(
     """External Select Menu."""
 
     options: list[Option]
-    option_groups: list[OptionGroup] | None = None
+    option_groups: list[OptionGroupSchema] | None = None
     min_query_length: int = 3
     initial_option: Option | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -93,7 +97,7 @@ class ExternalMultiSelectMenu(
     initial_options: list[Option] | None = None
     min_query_length: int = 3
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -110,7 +114,7 @@ class UserSelectMenu(
 
     initial_user: str | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -127,7 +131,7 @@ class UserMultiSelectMenu(
 
     initial_users: list[str] | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -146,9 +150,9 @@ class ConversationSelectMenu(
     default_to_current_conversation: bool | None = None
     # Why None? If default_to_current_conversation is also supplied, initial_conversation will be ignored.
     response_url_enabled: bool = False
-    filter: ConversationFilter | None = None
+    filter: ConversationFilterSchema | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -166,9 +170,9 @@ class ConversationMultiSelectMenu(
     initial_conversations: list[str] | None = None
     default_to_current_conversation: bool | None = None
     # Why None? If default_to_current_conversation is also supplied, initial_conversations will be ignored.
-    filter: ConversationFilter | None = None
+    filter: ConversationFilterSchema | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -186,7 +190,7 @@ class ChannelSelectMenu(
     initial_channel: str | None = None
     response_url_enabled: bool = False
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None
@@ -203,7 +207,7 @@ class ChannelMultiSelectMenu(
 
     initial_channels: list[str] | None = None
 
-    confirm: ConfirmationDialog | None = None
+    confirm: ConfirmationDialogSchema | None = None
     max_selected_items: int | None = None
     focus_on_load: bool | None = None
     placeholder: PlainText | None = None

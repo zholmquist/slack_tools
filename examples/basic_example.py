@@ -17,5 +17,11 @@ layout = bk[
     bk.section('Hello'),
 ]
 
-console.print(layout)
+# As JSON
 console.print_json(layout.to_json())
+
+# As Python Objects
+console.print(layout.to_dict())
+
+# As Builder URL
+console.print(layout.as_builder_url())

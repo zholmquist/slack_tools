@@ -1,9 +1,10 @@
-from dataclasses import field
+from dataclasses import dataclass, field
 from typing import Callable, Self
 
 from slack_tools.actions.schemas import ActionCallback
 
 
+@dataclass
 class CallableElementMixin:
     """Mixin for elements that can be called."""
 

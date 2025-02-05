@@ -35,7 +35,7 @@ def contains_emoji(s: str) -> bool:
 
 
 def remove_none(data: Any) -> Any:
-    """Recursively remove all None values from dictionaries, lists, and tuples."""
+    """Recursively remove all None values from dicts, lists, and tuples."""
     if isinstance(data, dict):
         return {k: remove_none(v) for k, v in data.items() if v is not None}
     if isinstance(data, list):
@@ -43,3 +43,14 @@ def remove_none(data: Any) -> Any:
     if isinstance(data, tuple):
         return tuple(remove_none(item) for item in data if item is not None)
     return data
+
+
+def escape_control_characters(text: str) -> str:
+    """Escape control characters in a string.
+
+    Slack uses &, <, and > as control characters for special parsing in text
+    objects, so they must be converted to HTML entities.
+
+    [🔗 Documentation](https://api.slack.com/reference/surfaces/formatting#escaping)
+    """
+    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')

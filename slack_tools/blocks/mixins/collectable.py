@@ -1,8 +1,8 @@
 from typing import Generic, Self, TypeVar
 
-from slack_tools.blocks.base import Base
+from slack_tools.blocks.schemas.base import BaseSchema
 
-T = TypeVar('T', bound=Base)
+T = TypeVar('T', bound=BaseSchema)
 
 
 class CollectableElementMixin(Generic[T]):
@@ -13,7 +13,6 @@ class CollectableElementMixin(Generic[T]):
 
     def __getitem__(self: Self, items: T | tuple[T, ...] | list[T]) -> Self:
         """Add items to the designated collection field."""
-        print(type(items))
         if isinstance(items, tuple):
             items = list(items)
         elif not isinstance(items, list):

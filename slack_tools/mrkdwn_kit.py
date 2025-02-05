@@ -1,37 +1,53 @@
-from slack_tools.mrkdwn.slack import Link, Mention
-from slack_tools.mrkdwn.syntax import (
+from slack_tools.mrkdwn import (
+    H1,
+    H2,
+    H3,
     Bold,
     Code,
     CodeBlock,
     CodeInline,
     ComposeMarkdown,
     Italic,
+    Link,
     List,
+    MarkdownTable,
+    Mention,
     Newline,
+    Paragraph,
     Quote,
     Strikethrough,
+    Todo,
 )
 
+__all__ = ['MarkdownKit']
 
-class Markdown:
+
+class MarkdownKit:
     """Markdown utility with structured token types."""
 
-    bold = Bold
-    italic = Italic
-    strikethrough = Strikethrough
-    new_line = Newline
+    def __init__(self, extras: bool = False):
+        """Extras are not supported in Slack."""
+        self.bold = Bold
+        self.italic = Italic
+        self.strikethrough = Strikethrough
+        self.new_line = Newline
 
-    blockquote = Quote
-    code_inline = CodeInline
-    code_block = CodeBlock
-    code = Code
+        self.blockquote = Quote
+        self.code_inline = CodeInline
+        self.code_block = CodeBlock
+        self.code = Code
 
-    list = List
+        self.list = List
 
-    # Links: URLs
-    link = Link
-    email = Link
+        self.link = Link
+        self.email = Link
+        self.mention = Mention
+        self.compose = ComposeMarkdown
 
-    mention = Mention
-
-    compose = ComposeMarkdown
+        if extras:
+            self.table = MarkdownTable()
+            self.todo = Todo.create
+            self.h1 = H1.create
+            self.h2 = H2.create
+            self.h3 = H3.create
+            self.p = Paragraph.create
