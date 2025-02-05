@@ -3,12 +3,13 @@ from dataclasses import asdict, dataclass, is_dataclass
 from typing import Callable, Self
 
 from slack_tools.actions.handler import ActionHandler
-from slack_tools.blocks.base import BaseBlock
 from slack_tools.blocks.blocks import (
     ActionsBlock,
+    AnyBlock,
     ContextBlock,
     DividerBlock,
     HeaderBlock,
+    Image,
     RichPreformatted,
     RichQuote,
     RichSection,
@@ -22,7 +23,6 @@ from slack_tools.blocks.interactive import (
     DatePicker,
     DateTimePicker,
     EmailInput,
-    Image,
     NumberInput,
     PlainTextInput,
     RadioButtons,
@@ -42,6 +42,7 @@ from slack_tools.blocks.menus import (
     UserMultiSelectMenu,
     UserSelectMenu,
 )
+from slack_tools.blocks.mixins.preview import BlockKitPreviewMixin
 from slack_tools.blocks.objects import Option
 from slack_tools.blocks.rich_text import (
     RichBroadcast,
@@ -63,10 +64,10 @@ class BlockKitActions:
 
 
 @dataclass
-class BlockKit(BlockKitActions):
+class BlockKit(BlockKitActions, BlockKitPreviewMixin):
     """BlockKit Kit."""
 
-    blocks: list[BaseBlock]
+    blocks: list[AnyBlock]
 
     def __init__(self, handler: ActionHandler | None = None):
         self.blocks = []
@@ -139,7 +140,7 @@ class BlockKit(BlockKitActions):
 
         return self.action_handler.get_callback_callable(action_id)
 
-    def __getitem__(self, blocks: BaseBlock | tuple[BaseBlock, ...]) -> Self:
+    def __getitem__(self, blocks: AnyBlock | tuple[AnyBlock, ...]) -> Self:
         """Add blocks to the kit."""
         if not isinstance(blocks, tuple):
             blocks = (blocks,)

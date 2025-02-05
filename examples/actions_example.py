@@ -1,5 +1,5 @@
 from slack_tools.block_kit import BlockKit
-from slack_tools.mrkdwn_kit import Markdown
+from slack_tools.mrkdwn_kit import MarkdownKit
 
 
 def greet_one():
@@ -16,7 +16,7 @@ def greet_two():
 bk = BlockKit()
 
 # Initialize Markdown
-md = Markdown()
+md = MarkdownKit()
 
 # Passing a callback directly to a Button
 button_with_callback = bk.button('🟠 Click me', callback=greet_one)
@@ -54,10 +54,12 @@ if __name__ == '__main__':
 
     print('\nCallback Demo...', end='\n\n')
     if callback_action_id:
+        print(f'Callback one: {callback_action_id}')
         callback_one = bk.get_callback_fn(callback_action_id)
         callback_one()
 
     if action_id:
+        print(f'Callback two: {action_id}')
         callback_two = bk.get_callback_fn(action_id)
         callback_two()
 
@@ -66,4 +68,4 @@ if __name__ == '__main__':
     callback_three()
 
     # Print markdown text directly
-    print(layout.to_json())
+    print(layout.as_builder_url())

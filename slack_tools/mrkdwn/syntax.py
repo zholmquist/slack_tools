@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Literal, Self
 
 from slack_tools.mrkdwn.base import AnyItems, MarkdownStr, SyntaxToken
 from slack_tools.mrkdwn.glyphs import Glyph
@@ -161,7 +161,26 @@ class ComposeMarkdown(MarkdownStr):
     """
 
     def __new__(cls, *items: str) -> Self:
-        return super().__new__(cls, ' '.join(items))
+        # Convert items to strings and handle block vs inline elements
+        formatted_items = []
+        for item in items:
+            # Check if item has _render_as attribute
+            render_as = getattr(item, '_render_as', 'inline')
+            str_item = str(item)
+
+            if render_as == 'block':
+                if formatted_items and not formatted_items[-1].endswith('\n'):
+                    formatted_items.append('\n')
+                formatted_items.append(str_item)
+                if not str_item.endswith('\n'):
+                    formatted_items.append('\n')
+            else:
+                # Inline element - join with space if needed
+                if formatted_items and not formatted_items[-1].endswith('\n'):
+                    formatted_items.append(' ')
+                formatted_items.append(str_item)
+
+        return super().__new__(cls, ''.join(formatted_items))
 
     def __str__(self) -> str:
         return super().__str__()
