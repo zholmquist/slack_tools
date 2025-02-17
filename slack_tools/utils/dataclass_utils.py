@@ -1,30 +1,15 @@
 import textwrap
-from dataclasses import field
 from typing import Any
 
 
 def clean_text(text: str | None) -> str | None:
-    """Clean text by removing extra whitespace and de-denting.
-
-    Args:
-        text: The text to clean
-
-    Returns:
-        The cleaned text, or None if input was None
-    """
+    """Clean text by removing extra whitespace and de-denting."""
     if text is None:
         return None
 
-    # Dedent the text
     text = textwrap.dedent(text)
-
-    # Remove empty lines at start/end
     text = text.strip()
-
-    # Normalize line endings and remove extra whitespace
     lines = [line.strip() for line in text.splitlines()]
-
-    # Join with single spaces
     return ' '.join(line for line in lines if line)
 
 

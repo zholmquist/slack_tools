@@ -382,9 +382,7 @@ class SectionBlockSchema(BaseBlock, TypeValidatorMixin, block_type='section'):
         if self.fields:
             for field in self.fields:
                 if len(field.text) > 2000:
-                    raise ValueError(
-                        'Maximum length for the text in each item is 2000 characters.'
-                    )
+                    raise ValueError('Maximum length for the text in each item is 2000 characters.')
 
 
 @dataclass
@@ -542,6 +540,10 @@ class RichSectionSchema(BaseRichBlock, block_type='rich_text_section'):
 class RichTextListSchema(BaseRichBlock, block_type='rich_text_list'):
     """Rich text list."""
 
+    def __post_init__(self):
+        if self.indent is not None and self.indent > 8:
+            raise ValueError('indent must be less than 8.')
+
     elements: list[RichSectionSchema] | tuple[RichSectionSchema, ...] = field(
         default_factory=list,
         metadata={
@@ -553,8 +555,8 @@ class RichTextListSchema(BaseRichBlock, block_type='rich_text_list'):
             """,
         },
     )
-    style: Literal['ordered', 'bullet'] = field(
-        default='bullet',
+    style: Literal['ordered', 'bullet'] | None = field(
+        default=None,
         metadata={
             'title': 'style',
             'description': """
@@ -566,7 +568,7 @@ class RichTextListSchema(BaseRichBlock, block_type='rich_text_list'):
         default=None,
         metadata={
             'title': 'indent',
-            'description': 'Number of pixels to indent the list.',
+            'description': 'Number of pixels to indent the list. Less than 8.',
         },
     )
     offset: int | None = field(
@@ -665,12 +667,7 @@ class RichTextBlockSchema(BaseBlock, block_type='rich_text'):
         - [🔗 Rich Text Block](https://api.slack.com/reference/block-kit/blocks#rich_text)
     """
 
-    elements: list[
-        RichSectionSchema
-        | RichTextListSchema
-        | RichPreformattedSchema
-        | RichQuoteSchema
-    ] = field(
+    elements: list[RichSectionSchema | RichTextListSchema | RichPreformattedSchema | RichQuoteSchema] = field(
         default_factory=list,
         metadata={
             'title': 'elements',

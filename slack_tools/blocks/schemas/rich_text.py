@@ -22,22 +22,22 @@ __all__ = [
 class StyleRichTextSchema:
     """Rich text style."""
 
-    bold: bool = False
-    italic: bool = False
-    strike: bool = False
-    code: bool = False
+    bold: bool | None = None
+    italic: bool | None = None
+    strike: bool | None = None
+    code: bool | None = None
 
 
 @dataclass
 class StyleRichMentionSchema:
     """Rich mention style."""
 
-    bold: bool = False
-    italic: bool = False
-    strike: bool = False
-    highlight: bool = False
-    client_highlight: bool = False
-    unlink: bool = False
+    bold: bool | None = None
+    italic: bool | None = None
+    strike: bool | None = None
+    highlight: bool | None = None
+    client_highlight: bool | None = None
+    unlink: bool | None = None
 
 
 @dataclass

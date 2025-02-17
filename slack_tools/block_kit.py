@@ -123,16 +123,18 @@ class BlockKit(BlockKitActions, BlockKitPreviewMixin):
         self.time_picker = TimePicker.create
 
         # Blocks
-        self.actions = ActionsBlock(elements=[])
-        self.context = ContextBlock(elements=[])
         self.divider = DividerBlock.create
         self.header = HeaderBlock.create
         self.section = SectionBlock.create
+        # Collectors
+        self.actions = ActionsBlock(elements=[])
+        self.context = ContextBlock(elements=[])
         self.rich_section = RichSection(elements=[])
+        self.rich_text_section = RichSection(elements=[])
         self.rich_text_list = RichTextList(elements=[])
         self.rich_text_preformatted = RichPreformatted(elements=[])
         self.rich_text_quote = RichQuote(elements=[])
-        self.rich_block = RichTextBlock(elements=[])
+        self.rich_text = RichTextBlock(elements=[])
 
     def get_callback_fn(self, action_id: str) -> Callable:
         if not self.action_handler:

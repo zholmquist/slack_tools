@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import Callable, Self
+from typing import Callable, Literal, Self
 
 from slack_tools.blocks.mixins.callable import CallableElementMixin
 from slack_tools.blocks.mixins.collectable import CollectableElementMixin
@@ -34,6 +34,8 @@ class Button(ButtonSchema, CallableElementMixin):
         url: str | None = None,
         action_id: str | None = None,
         callback: Callable | None = None,
+        value: str | None = None,
+        style: Literal['primary', 'danger'] | None = None,
     ) -> Self:
         if action_id is None:
             action_id = str(uuid.uuid4())
@@ -42,6 +44,8 @@ class Button(ButtonSchema, CallableElementMixin):
             text=PlainTextSchema(text=text),
             url=url,
             action_id=action_id,
+            value=value,
+            style=style,
         )
         if callback:
             button.action(callback)

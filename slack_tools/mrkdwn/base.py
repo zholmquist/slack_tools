@@ -17,9 +17,15 @@ class SyntaxToken(MarkdownStr):
 
     _render_as: Literal['inline', 'block'] = 'inline'
     _template: str = '{}'  # default template
+    _original_value: str | None = None
+
+    def sanitize(self) -> str:
+        return self._original_value
 
     def __new__(cls, value: str | None = None, /) -> 'SyntaxToken':
-        return super().__new__(cls, cls._template.format(value))
+        instance = super().__new__(cls, cls._template.format(value))
+        instance._original_value = value
+        return instance
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}({super().__str__()})'
