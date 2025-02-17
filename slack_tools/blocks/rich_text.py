@@ -13,6 +13,7 @@ from slack_tools.blocks.schemas.rich_text import (
     StyleRichMentionSchema,
     StyleRichTextSchema,
 )
+from slack_tools.mrkdwn.base import SyntaxToken
 
 
 class RichBroadcast(RichBroadcastSchema):
@@ -58,9 +59,7 @@ class RichDate(RichDateSchema):
         url: str | None = None,
         fallback: str | None = None,
     ) -> Self:
-        return cls(
-            timestamp=timestamp, format=format_string, url=url, fallback=fallback
-        )
+        return cls(timestamp=timestamp, format=format_string, url=url, fallback=fallback)
 
 
 class RichEmoji(RichEmojiSchema):
@@ -93,7 +92,7 @@ class RichText(RichTextSchema):
     @classmethod
     def create(
         cls,
-        text: str,
+        text: str | SyntaxToken,
         /,
         *,
         style: StyleRichTextSchema | None = None,
@@ -130,13 +129,5 @@ class RichUserGroup(RichUserGroupSchema):
 
 
 AnyRichElement = (
-    RichBroadcast
-    | RichColor
-    | RichChannel
-    | RichDate
-    | RichEmoji
-    | RichLink
-    | RichText
-    | RichUser
-    | RichUserGroup
+    RichBroadcast | RichColor | RichChannel | RichDate | RichEmoji | RichLink | RichText | RichUser | RichUserGroup
 )

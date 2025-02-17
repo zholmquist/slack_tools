@@ -25,5 +25,7 @@ cspell.json
 .vscode
 sandbox.py
 
+slack_data/**
+
 deploy_key
 deploy_key.pub

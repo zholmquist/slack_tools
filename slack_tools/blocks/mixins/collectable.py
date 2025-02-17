@@ -18,11 +18,12 @@ class CollectableElementMixin(Generic[T]):
         elif not isinstance(items, list):
             items = [items]
 
+        # Need to rethink this...
         if all(hasattr(item, 'elements') for item in items):
             self._collect_field = 'elements'
         elif all(isinstance(item, BaseRichElement) for item in items):
             self._collect_field = 'elements'
         else:
-            raise ValueError(f'Cannot determine collection field for items: {items}')
+            self._collect_field = 'elements'
 
         return self.__class__(**{self._collect_field: items})

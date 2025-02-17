@@ -1,4 +1,4 @@
-from typing import Literal, Self, Sequence, TypeAlias
+from typing import Any, Literal, Self, Sequence, TypeAlias
 
 from slack_tools.actions.schemas import ActionCallback
 from slack_tools.blocks.interactive import (
@@ -28,7 +28,7 @@ from slack_tools.blocks.menus import (
     UserSelectMenu,
 )
 from slack_tools.blocks.mixins.collectable import CollectableElementMixin
-from slack_tools.blocks.rich_text import AnyRichElement
+from slack_tools.blocks.rich_text import AnyRichElement, RichText
 from slack_tools.blocks.schemas.blocks import (
     ActionsBlockSchema,
     ContextBlockSchema,
@@ -42,8 +42,10 @@ from slack_tools.blocks.schemas.blocks import (
     RichTextListSchema,
     SectionBlockSchema,
 )
+from slack_tools.blocks.schemas.rich_text import StyleRichTextSchema
 from slack_tools.blocks.text import MarkdownText, PlainText
-from slack_tools.mrkdwn.base import SyntaxToken
+from slack_tools.mrkdwn.base import MarkdownStr, SyntaxToken
+from slack_tools.mrkdwn.syntax import Bold, CodeInline, Italic, Strikethrough
 
 AnyElement = (
     # Interactive
@@ -121,12 +123,11 @@ class SectionBlock(SectionBlockSchema):
         accessory: Button | None = None,  # Image
     ) -> Self:
         """Create a section block."""
-        if isinstance(text, SyntaxToken):
-            # Convert SyntaxToken to raw markdown string
+        # print(isinstance(text, SyntaxToken))
+        if isinstance(text, MarkdownStr) or isinstance(text, SyntaxToken):
             text = MarkdownText(text=text)
         else:
             text = PlainText(text=text)
-
         return cls(text=text, accessory=accessory)
 
     def get_action(self) -> ActionCallback | None:
@@ -138,10 +139,72 @@ class SectionBlock(SectionBlockSchema):
 class RichSection(RichSectionSchema, CollectableElementMixin[AnyRichElement]):
     @classmethod
     def create(cls, elements: list[AnyRichElement]) -> Self:
+        if isinstance(elements, MarkdownStr) or isinstance(elements, SyntaxToken):
+            elements = MarkdownText(text=elements)
+        else:
+            elements = PlainText(text=elements)
         return cls(elements=elements)
 
+    def __getitem__(
+        self: Self,
+        elements: AnyRichElement | tuple[AnyRichElement, ...] | list[AnyRichElement],
+    ) -> Self:
+        """Add items to the designated collection field."""
+        if isinstance(elements, tuple):
+            elements = list(elements)
+        elif not isinstance(elements, list):
+            elements = [elements]
 
-class RichTextList(RichTextListSchema):
+        new_elements = []
+        for element in elements:
+            if isinstance(element, MarkdownStr) or isinstance(element, SyntaxToken):
+                style_flags = {}
+                if isinstance(element, Bold):
+                    style_flags['bold'] = True
+                if isinstance(element, Italic):
+                    style_flags['italic'] = True
+                if isinstance(element, Strikethrough):
+                    style_flags['strike'] = True
+                if isinstance(element, CodeInline):
+                    style_flags['code'] = True
+
+                new_elements.append(
+                    RichText(
+                        element.sanitize(),
+                        style=StyleRichTextSchema(**style_flags),
+                    ),
+                )
+            elif isinstance(element, str):
+                new_elements.append(RichText(element))
+            else:
+                new_elements.append(element)
+
+        return self.__class__(**{'elements': new_elements})
+
+
+class StyleBlock:
+    def __init__(self, value: Any):
+        self.value = value
+
+    def styles(
+        self,
+        ordered: bool | None = None,
+        indent: int | None = None,
+        offset: int | None = None,
+        border: int | None = None,
+    ):
+        if indent is not None and indent > 8:
+            raise ValueError('indent must be less than 8.')
+
+        self.value.style = 'ordered' if ordered else 'bullet'
+        self.value.indent = indent
+        self.value.offset = offset
+        self.value.border = border
+
+        return self.value
+
+
+class RichTextList(RichTextListSchema, StyleBlock):
     @classmethod
     def create(
         cls,
@@ -153,20 +216,15 @@ class RichTextList(RichTextListSchema):
         offset: int | None = None,
         border: int | None = None,
     ) -> Self:
-        return cls(
-            elements=elements, style=style, indent=indent, offset=offset, border=border
-        )
+        return cls(elements=elements, style=style, indent=indent, offset=offset, border=border)
 
-    def __getitem__(
-        self: Self, items: RichSection | tuple[RichSection, ...] | list[RichSection]
-    ) -> Self:
+    def __getitem__(self: Self, items: RichSection | tuple[RichSection, ...] | list[RichSection]) -> Self:
         """Add items to the designated collection field."""
         if isinstance(items, tuple):
             items = list(items)
         elif not isinstance(items, list):
             items = [items]
-
-        return self.__class__(**{'elements': items})
+        return StyleBlock(self.__class__(**{'elements': items}))
 
 
 class RichPreformatted(RichPreformattedSchema, CollectableElementMixin[AnyRichElement]):
