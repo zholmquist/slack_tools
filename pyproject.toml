@@ -1,6 +1,6 @@
 [project]
 name = "slack-tools"
-version = "0.1.0"
+version = "0.1.1"
 description = "A concise, and opinionated, syntax for building Slack Block Kit UIs...and other things."
 authors = [{ name = "Zach Holmquist", email = "zach@spacemonkey.net" }]
 requires-python = ">=3.12"
@@ -26,9 +26,9 @@ packages = ["slack_tools"]
 dev = [
     "jinja2>=3.1.5",
     "mypy>=1.14.1",
- "pytest>=8.3.4",
- "rich>=13.9.4",
- "ruff>=0.9.4",
+    "pytest>=8.3.4",
+    "rich>=13.9.4",
+    "ruff>=0.9.4",
 ]
 lint = ["mypy>=1.11.2", "pytest>=8.3.4", "ruff>=0.9.4"]
 
